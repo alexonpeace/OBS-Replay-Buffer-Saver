@@ -1,6 +1,6 @@
 # OBS Replay Buffer Saver
 
-A lightweight Windows utility designed for two-PC streaming setups. Run this app on your **Main (Gaming PC) machine** to remotely trigger a Replay Buffer save on your **Second (Sreaming PC) Machine** via WebSockets.
+A lightweight Windows utility designed for two-PC streaming setups. Run this app on your **Main (Gaming PC) machine** to remotely trigger a Replay Buffer save on your **Second (Streaming PC) Machine** via WebSockets.
 
 ---
 
