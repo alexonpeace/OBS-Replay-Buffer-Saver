@@ -1,0 +1,32 @@
+# UTF-8
+VSVersionInfo(
+    ffi=FixedFileInfo(
+        filevers=(1,0,0,0),
+        prodvers=(1,0,0,0),
+        mask=0x3f,
+        flags=0x0,
+        OS=0x4,
+        fileType=0x1,
+        subtype=0x0,
+        date=(0,0)
+    ),
+    kids=[
+        StringFileInfo([
+            StringTable(
+                u"040904B0",[
+                    StringStruct(u"CompanyName", u"alexonpeace"),
+                    StringStruct(u"FileDescription", u"OBS Replay Buffer Saver Tray App"),
+                    StringStruct(u"FileVersion", u"1.0.0.0"),
+                    StringStruct(u"InternalName", u"OBSReplaySaver"),
+                    StringStruct(u"LegalCopyright", u"© 2025 alexonpeace"),
+                    StringStruct(u"OriginalFilename", u"OBSReplaySaver.exe"),
+                    StringStruct(u"ProductName", u"OBS Replay Saver"),
+                    StringStruct(u"ProductVersion", u"1.0.0.0")
+                ]
+            )
+        ]),
+        VarFileInfo([
+            VarStruct(u"Translation", [1033,1200])
+        ])
+    ]
+)
