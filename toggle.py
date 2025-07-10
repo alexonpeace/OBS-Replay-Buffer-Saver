@@ -1,17 +1,3 @@
-"""
-OBS Replay Buffer Saver Tray App
-
-Dependencies:
-  - obs-websocket-py
-  - pystray
-  - pillow
-  - keyboard
-  - winotify
-
-Pack with:
-  pip install pyinstaller
-  pyinstaller --onefile --noconsole --icon=obs_replay.ico --name OBSReplaySaver --version-file version.txt toggle.py
-"""
 import sys
 import os
 import time
@@ -21,6 +7,8 @@ import keyboard
 from obswebsocket import obsws, requests
 import pystray
 from PIL import Image, ImageDraw, ImageOps
+import tkinter as tk
+from tkinter.simpledialog import askstring, askinteger
 
 # Use winotify for reliable Windows toast notifications
 try:
@@ -63,15 +51,23 @@ def save_config():
 
 
 def prompt_settings():
+    """
+    Pop up GUI dialogs to gather OBS connection settings and hotkey.
+    """
     global HOST, PORT, PASSWORD, HOTKEY
+    root = tk.Tk()
+    root.withdraw()  # hide blank main window
+
     if not HOST:
-        HOST = input('Enter OBS host/IP: ').strip()
+        HOST = askstring("OBS Replay Saver", "Enter OBS host/IP:")
     if not PORT:
-        PORT = int(input('Enter OBS port [4444]: ') or '4444')
+        PORT = askinteger("OBS Replay Saver", "Enter OBS port [4444]:", initialvalue=4444)
     if PASSWORD is None:
-        PASSWORD = input('Enter OBS password (leave blank if none): ')
+        PASSWORD = askstring("OBS Replay Saver", "Enter OBS password (leave blank if none):")
     if not HOTKEY:
-        HOTKEY = input('Enter hotkey (e.g. ctrl+alt+s): ').strip()
+        HOTKEY = askstring("OBS Replay Saver", "Enter save hotkey (e.g. ctrl+alt+s):")
+
+    root.destroy()
     save_config()
 
 
@@ -124,12 +120,19 @@ def setup_tray():
 
 if __name__ == '__main__':
     load_config()
-    prompt_settings()
+    # If no config file or missing settings, prompt user via GUI
+    if not (HOST and PORT and HOTKEY is not None):
+        prompt_settings()
+
     try:
         keyboard.add_hotkey(HOTKEY, lambda: threading.Thread(target=save_replay,daemon=True).start())
     except Exception as e:
-        print(f"Failed to register hotkey: {e}")
+        notify('OBSReplaySaver Error', f'Failed to register hotkey: {e}')
         sys.exit(1)
-    if os.name=='nt':
-        import ctypes; ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(),0)
+
+    # Hide console window on Windows when frozen
+    if os.name == 'nt' and getattr(sys, 'frozen', False):
+        import ctypes
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+
     setup_tray()
