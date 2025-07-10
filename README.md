@@ -1,49 +1,59 @@
 # OBS Replay Buffer Saver
 
-System‑tray utility for Windows that lets you bind a global hotkey to save OBS’s Replay Buffer via obs-websocket, complete with toast notifications and persistent config.
+A lightweight Windows utility designed for two-PC streaming setups. Run this app on your **Main (Gaming PC) machine** to remotely trigger a Replay Buffer save on your **Second (Sreaming PC) Machine** via WebSockets.
 
 ---
 
-## Features
+## Key Features
 
-* **Global Hotkey**: Press your custom hotkey (e.g. `Ctrl+Alt+S`) to trigger an OBS Replay Buffer save, even when OBS is in the background.
-* **System Tray Icon**: Access the app via a tray icon with menu items:
+- **Dual-PC Support**  
+  Control OBS running on a separate PC over the network—all you need is OBS WebSocket enabled on the primary machine.
+- **Global Hotkey**  
+  Configure a custom hotkey (e.g. `Ctrl+Alt+S`) on the control PC to instantly save the Replay Buffer from the OBS PC, even if OBS is minimized or in another room.
+- **System Tray Utility**  
+  – Tray icon with **Save Replay** and **Quit**  
+  – Automatically runs hidden in the background  
+- **Windows Toast Notifications**  
+  Instant feedback on success or failure, powered by `winotify`.  
+- **Persistent Configuration**  
+  First-run prompts store OBS host/IP, port, password, and hotkey in `config.ini` next to the EXE.  
+- **Automatic Buffer Start**  
+  If the Replay Buffer isn’t active on the OBS PC, the app will start it before saving—so you never miss a moment.
 
-  * *Save Replay* — manually trigger buffer save
-  * *Quit* — exit the app
-* **Toast Notifications**: Windows toast pop-ups confirm success or report errors.
-* **Persistent Configuration**: Stores OBS connection details and hotkey in a `config.ini` next to the EXE for future runs.
-* **Automatic Replay Buffer Start**: If the buffer isn’t already running, the app will start it briefly before saving.
+---
+
+## Prerequisites
+
+- **Primary PC (OBS)**
+  - Windows OS  
+  - OBS Studio with **obs-websocket** plugin installed and enabled  
+  - WebSocket port (default `4444`) reachable from your network
+
+- **Control PC**
+  - Windows OS  
+  - Python 3.7+ (if building from source) or the standalone EXE  
+  - Network connectivity to the OBS PC
 
 ---
 
 ## Dependencies
 
-* Python 3.7+ (Windows)
-* [obs-websocket-py](https://github.com/obsproject/obs-websocket)
-* [pystray](https://github.com/moses-palmer/pystray)
-* [Pillow](https://python-pillow.org/)
-* [keyboard](https://github.com/boppreh/keyboard)
-* [winotify](https://github.com/dekellum/winotify)
+If building from source on the control PC:
+```bash
+pip install obs-websocket-py pystray pillow keyboard winotify
+````
 
 ---
 
-## Installation & Packaging
+## Building the EXE
 
-1. **Clone or download** this repository.
-2. **Install Python dependencies**:
-
-   ```bash
-   pip install obs-websocket-py pystray pillow keyboard winotify
-   ```
-3. **Install PyInstaller** (if not already):
+1. Install PyInstaller (if needed):
 
    ```bash
    pip install pyinstaller
    ```
-4. **Place an icon** named `obs_replay.ico` alongside `toggle.py` (optional; fallback icon is included).
-5. **(Optional)** Create a `version.txt` resource if you want custom file metadata.
-6. **Build the single EXE**:
+2. Place your icon (`obs_replay.ico`) and optional `version.txt` next to `toggle.py`.
+3. Run:
 
    ```bash
    pyinstaller \
@@ -54,52 +64,65 @@ System‑tray utility for Windows that lets you bind a global hotkey to save OBS
      --version-file version.txt \
      toggle.py
    ```
-7. Find `OBSReplaySaver.exe` in the `dist/` directory.
+4. Your `OBSReplaySaver.exe` will appear in the `dist/` folder.
 
 ---
 
 ## Usage
 
-1. **Run** `OBSReplaySaver.exe` once.
-2. **Enter** your OBS WebSocket host/IP, port (default `4444`), password (if any), and desired hotkey when prompted.
-3. The app will minimize to the system tray. Press your hotkey or use the tray menu to save the Replay Buffer.
-4. OBS must have Replay Buffer enabled (Settings → Output → Replay Buffer) prior to saving.
+1. Launch **OBSReplaySaver.exe** on the **control PC**.
+2. Enter your **OBS PC’s** host/IP, WebSocket port (default 4444), password (if set), and desired hotkey.
+3. The app minimizes to the tray.
+4. Press the hotkey—or right-click the tray icon and choose **Save Replay**—to save the OBS Replay Buffer remotely.
+5. Verify on the **OBS PC** that Replay Buffer is enabled (Settings → Output → Replay Buffer).
 
 ---
 
 ## Configuration File (`config.ini`)
 
-Located next to the EXE after first run. Sample structure:
+Located next to the EXE after first run:
 
 ```ini
 [OBS]
-host = 192.168.1.100
-port = 4444
-password = mySecret
+host     = 192.168.1.50
+port     = 4444
+password = yourPassword
 
 [HOTKEY]
-save = ctrl+alt+s
+save     = ctrl+alt+s
 ```
 
-Edit this file directly to change OBS details or hotkey without re-running the prompts.
+Edit these values directly to change settings without rerunning prompts.
 
 ---
 
 ## Troubleshooting
 
-* **Hotkey not working**: Make sure the chosen combination isn’t reserved by Windows or other apps. Run as administrator if needed.
-* **No tray icon**: Verify `obs_replay.ico` is next to the EXE, or allow the fallback icon via the script.
-* **Notifications missing**: Ensure `winotify` is installed. Otherwise, errors and confirmations will print to the console.
-* **OBS connection errors**: Double-check WebSocket port, host/IP, and password in OBS’s settings.
+* **No Response / Hotkey Fails**
+  • Ensure the control PC can reach the OBS PC’s IP and port.
+  • Run as administrator if OBS requires elevated permissions.
+  • Pick a unique hotkey combination not used elsewhere.
+
+* **Tray Icon Missing**
+  • Confirm `obs_replay.ico` is next to the EXE, or rely on the fallback icon.
+  • Check Windows’ “show hidden icons” overflow or notification area settings.
+
+* **Notifications Absent**
+  • Verify `winotify` is installed.
+  • If toasts fail, the app will log to the console when run without `--noconsole`.
+
+* **OBS Errors**
+  • Double-check OBS WebSocket settings (port, password) on the primary PC.
+  • Inspect the app’s console log for detailed errors.
 
 ---
 
 ## Contributing
 
 1. Fork the repo.
-2. Create a feature branch (`git checkout -b feature/YourFeature`).
-3. Commit your changes (`git commit -m "Add YourFeature"`).
-4. Push to your branch and open a Pull Request.
+2. Create a branch: `git checkout -b feature/your-feature`.
+3. Commit your changes: `git commit -m "Add feature"`.
+4. Push and open a PR.
 
 ---
 
